@@ -21,6 +21,9 @@ package uk.ac.ebi.eva.server.ws;
 
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.TemplateVariables;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +48,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/v2/variants", produces = "application/json")
@@ -328,5 +334,34 @@ public class VariantWSServerV2 extends EvaWSServer {
                 variantSources.size());
 
         return setQueryResponse(queryResult);
+    }
+
+    @GetMapping(value = "/{variantId}/info/links")
+    public Resource<QueryResponse> getLinks(@PathVariable("variantId") String variantId,
+                                            @RequestParam(name = "studies", required = false) List<String> studies,
+                                            @RequestParam(name = "species") String species,
+                                            @RequestParam(name = "annot-ct", required = false)
+                                                    List<String> consequenceType,
+                                            @RequestParam(name = "maf", required = false) String maf,
+                                            @RequestParam(name = "polyphen", required = false) String polyphenScore,
+                                            @RequestParam(name = "sift", required = false) String siftScore,
+                                            @RequestParam(name = "annot-vep-version", required = false)
+                                                    String annotationVepVersion,
+                                            @RequestParam(name = "annot-vep-cache-version", required = false) String
+                                                    annotationVepCacheVersion,
+                                            HttpServletResponse response) throws IOException {
+
+        QueryResponse queryResponse = getCoreInfo(variantId, studies, species, consequenceType, maf, polyphenScore,
+                siftScore, annotationVepVersion, annotationVepCacheVersion, response);
+
+        Link coreLink = new Link(linkTo(methodOn(VariantWSServerV2.class).getCoreInfo(variantId, studies,
+                species, consequenceType, maf, polyphenScore, siftScore, annotationVepVersion,
+                annotationVepCacheVersion, response)).toUri().toString(), "coreinfo");
+
+        Link annotationLink = new Link(linkTo(methodOn(VariantWSServerV2.class).getAnnotations(variantId, studies,
+                species, consequenceType, maf, polyphenScore, siftScore, annotationVepVersion,
+                annotationVepCacheVersion, response)).toUri().toString(), "annotations");
+
+        return new Resource<>(queryResponse, coreLink, annotationLink);
     }
 }
