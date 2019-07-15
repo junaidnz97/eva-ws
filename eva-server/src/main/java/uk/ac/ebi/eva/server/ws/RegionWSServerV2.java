@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -117,7 +118,9 @@ public class RegionWSServerV2 {
         } catch (AnnotationMetadataNotFoundException ex) {
             return new ResponseEntity(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        List<Resource> resourcesList = new ArrayList<>();
+      //  List<Resource> resourcesList = new ArrayList<>();
+        List<Link> links = new ArrayList<>();
+        List<Variant> variantList = new ArrayList<>();
         variantEntities.forEach(variantEntity -> {
             Variant variant = new Variant(variantEntity.getChromosome(), variantEntity.getStart(),
                     variantEntity.getEnd(), variantEntity.getReference(), variantEntity.getAlternate());
@@ -127,9 +130,11 @@ public class RegionWSServerV2 {
                     variantEntity.getChromosome() + ":" + variantEntity.getStart() + ":" + variantEntity.getReference()
                             + ":" + variantEntity.getAlternate(),
                     species, assembly, response)).toString());
-            resourcesList.add(new Resource<>(variant, variantLink));
+        //    resourcesList.add(new Resource<>(variant, variantLink));
+            links.add(variantLink);
+            variantList.add(variant);
         });
-        return new ResponseEntity(resourcesList, HttpStatus.OK);
+        return new ResponseEntity(new Resources<>(variantList,links), HttpStatus.OK);
     }
 
     public String checkParameters(String annotationVepVersion, String annotationVepCacheVersion, String species) throws
