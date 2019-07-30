@@ -20,6 +20,7 @@
 package uk.ac.ebi.eva.server.ws;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -31,17 +32,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
-import uk.ac.ebi.eva.commons.core.models.Annotation;
 import uk.ac.ebi.eva.commons.core.models.AnnotationMetadata;
 import uk.ac.ebi.eva.commons.core.models.pipeline.Variant;
-import uk.ac.ebi.eva.commons.core.models.ws.VariantSourceEntryWithSampleNames;
 import uk.ac.ebi.eva.commons.core.models.ws.VariantWithSamplesAndAnnotation;
 import uk.ac.ebi.eva.commons.mongodb.services.AnnotationMetadataNotFoundException;
 import uk.ac.ebi.eva.commons.mongodb.services.VariantWithSamplesAndAnnotationsService;
 import uk.ac.ebi.eva.lib.eva_utils.DBAdaptorConnector;
 import uk.ac.ebi.eva.lib.eva_utils.MultiMongoDbFactory;
-import uk.ac.ebi.eva.lib.utils.QueryResponse;
-import uk.ac.ebi.eva.lib.utils.QueryResult;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -61,6 +58,7 @@ public class VariantWSServerV2 {
 
     @GetMapping(value = "/{variantCoreString}")
     public ResponseEntity getCoreInfo(@PathVariable("variantCoreString") String variantCoreString,
+                                      @ApiParam(value = "#{speciesValue}")
                                       @RequestParam(name = "species") String species,
                                       @RequestParam(name = "assembly") String assembly,
                                       HttpServletResponse response) throws IllegalArgumentException {
